@@ -61,7 +61,7 @@ namespace MsBuildLoggerChromeTrace
 
         private void TaskStarted(object sender, TaskStartedEventArgs e)
         {
-            ChromeTracer.AddEndEvent(e.ThreadId, "Task:" + e.TaskName, GetTimeStamp(e.Timestamp), string.Empty);
+            ChromeTracer.AddBeginEvent(e.ThreadId, "Task:" + e.TaskName, GetTimeStamp(e.Timestamp), string.Empty);
         }
 
         private void TaskFinished(object sender, TaskStartedEventArgs e)
@@ -91,7 +91,8 @@ namespace MsBuildLoggerChromeTrace
 
         private long GetTimeStamp(DateTime timestamp)
         {
-            return (long) (1000000.0 * (timestamp.Ticks + .0) / System.Diagnostics.Stopwatch.Frequency);
+
+            return (long) (1000000.0 * (timestamp.Ticks /* System.Diagnostics.Stopwatch.GetTimestamp() */  + .0) / System.Diagnostics.Stopwatch.Frequency);
         }
     }
 }
