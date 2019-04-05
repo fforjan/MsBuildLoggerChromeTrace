@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Utilities;
+﻿using Microsoft.Build.Framework;
+using Microsoft.Build.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,9 +14,30 @@ namespace MsBuildLoggerChromeTrace
     {
         public override void Initialize(Microsoft.Build.Framework.IEventSource eventSource)
         {
-            ChromeTracer.Initialize("MSBuild.json");
-            ChromeTracer.IsEnabled = true;
+            // The name of the log file should be passed as the first item in the
+            // "parameters" specification in the /logger switch.  It is required
+            // to pass a log file to this logger. Other loggers may have zero or more than 
+            // one parameters.
+            if (null == Parameters)
+            {
+                throw new LoggerException("Log file was not set");
+            }
+            string[] parameters = Parameters.Split(';');
+            
+            string logFile = parameters[0];
+            if (String.IsNullOrEmpty(logFile))
+            {
+                throw new LoggerException("Log file was not set.");
+            }
+            
+            if (parameters.Length > 1)
+            {
+                throw new LoggerException("Too many parameters passed.");
+            }
 
+            Console.WriteLine($"using '{logFile}' as log file");
+            
+            ChromeTracer.Initialize(logFile);
 
             eventSource.ProjectStarted += ProjectStarted; ;
             eventSource.ProjectFinished += ProjectFinished;

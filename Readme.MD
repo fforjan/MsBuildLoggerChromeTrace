@@ -10,5 +10,7 @@ _NOTE: format is available here : https://docs.google.com/document/d/1CvAClvFfyA
 The idea is to compile it in debug and use it while compiling in release
 ```bash
 dotnet build
-dotnet build -c Release /logger:bin/Debug/netstandard2.0/MsBuildLoggerChromeTrace.dll
+dotnet build -c Release /logger:bin/Debug/netstandard2.0/MsBuildLoggerChromeTrace.dll\;logfile.json
 ```
+
+Just open the created logfile.json with [chrome://tracing](chrome://tracing) 

@@ -35,12 +35,6 @@ namespace MsBuildLoggerChromeTrace
         /// </summary>
         public static int ProcessId { get; private set; }
 
-
-        /// <summary>
-        /// Enable or Pause tracing
-        /// </summary>
-        public static bool IsEnabled { get; set; }
-
         private static void AddProcessInfo()
         {
             lock (FilePath)
@@ -88,15 +82,14 @@ namespace MsBuildLoggerChromeTrace
         /// <remarks><see cref="Initialize"/> must be called before</remarks>
         public static void AddCompletedEvent(int threadId, string name, long duration, long timeStamp, string context)
         {
-            if (IsEnabled)
+            
+            lock (FilePath)
             {
-                lock (FilePath)
-                {
-                    var args = string.IsNullOrEmpty(context) ? string.Empty : $", \"args\": {{ \"Context\": \"{context}\"}}";
-                    File.AppendAllText(FilePath,
-                    $"{{\"name\": \"{name}\", \"ph\": \"X\" , \"ts\": {timeStamp}, \"dur\": {duration},\"pid\": {ProcessId}, \"tid\": {threadId} {args}}},\n");
-                }
+                var args = string.IsNullOrEmpty(context) ? string.Empty : $", \"args\": {{ \"Context\": \"{context}\"}}";
+                File.AppendAllText(FilePath,
+                $"{{\"name\": \"{name}\", \"ph\": \"X\" , \"ts\": {timeStamp}, \"dur\": {duration},\"pid\": {ProcessId}, \"tid\": {threadId} {args}}},\n");
             }
+            
         }
 
         /// <summary>
@@ -109,14 +102,11 @@ namespace MsBuildLoggerChromeTrace
         /// <remarks><see cref="Initialize"/> must be called before</remarks>
         public static void AddBeginEvent(int threadId, string name, long timeStamp, string context)
         {
-            if (IsEnabled)
+            lock (FilePath)
             {
-                lock (FilePath)
-                {
-                    var args = string.IsNullOrEmpty(context) ? string.Empty : $", \"args\": {{ \"Context\": \"{context}\"}}";
-                    File.AppendAllText(FilePath,
-                    $"{{\"name\": \"{name}\", \"ph\": \"B\" , \"ts\": {timeStamp}, \"pid\": {ProcessId}, \"tid\": {threadId} {args}}},\n");
-                }
+                var args = string.IsNullOrEmpty(context) ? string.Empty : $", \"args\": {{ \"Context\": \"{context}\"}}";
+                File.AppendAllText(FilePath,
+                $"{{\"name\": \"{name}\", \"ph\": \"B\" , \"ts\": {timeStamp}, \"pid\": {ProcessId}, \"tid\": {threadId} {args}}},\n");
             }
         }
 
@@ -130,14 +120,12 @@ namespace MsBuildLoggerChromeTrace
         /// <remarks><see cref="Initialize"/> must be called before</remarks>
         public static void AddEndEvent(int threadId, string name, long timeStamp, string context)
         {
-            if (IsEnabled)
+            
+            lock (FilePath)
             {
-                lock (FilePath)
-                {
-                    var args = string.IsNullOrEmpty(context) ? string.Empty : $", \"args\": {{ \"Context\": \"{context}\"}}";
-                    File.AppendAllText(FilePath,
-                    $"{{\"name\": \"{name}\", \"ph\": \"E\" , \"ts\": {timeStamp}, \"pid\": {ProcessId}, \"tid\": {threadId} {args}}},\n");
-                }
+                var args = string.IsNullOrEmpty(context) ? string.Empty : $", \"args\": {{ \"Context\": \"{context}\"}}";
+                File.AppendAllText(FilePath,
+                $"{{\"name\": \"{name}\", \"ph\": \"E\" , \"ts\": {timeStamp}, \"pid\": {ProcessId}, \"tid\": {threadId} {args}}},\n");
             }
         }
     }
