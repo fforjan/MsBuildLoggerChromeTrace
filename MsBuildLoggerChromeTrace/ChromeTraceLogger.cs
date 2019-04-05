@@ -92,7 +92,7 @@ namespace MsBuildLoggerChromeTrace
         private long GetTimeStamp(DateTime timestamp)
         {
 
-            return (long) (1000000.0 * (timestamp.Ticks /* System.Diagnostics.Stopwatch.GetTimestamp() */  + .0) / System.Diagnostics.Stopwatch.Frequency);
+            return (long) (1000000.0 * System.Diagnostics.Stopwatch.GetTimestamp() + .0) / System.Diagnostics.Stopwatch.Frequency);
         }
     }
 }
