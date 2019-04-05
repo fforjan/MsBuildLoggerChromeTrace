@@ -39,32 +39,54 @@ namespace MsBuildLoggerChromeTrace
             
             ChromeTracer.Initialize(logFile);
 
-            eventSource.ProjectStarted += ProjectStarted; ;
-            eventSource.ProjectFinished += ProjectFinished;
+            if (Verbosity >= LoggerVerbosity.Diagnostic)
+            {
+                eventSource.TaskStarted += TaskStarted;
+                eventSource.TaskStarted += TaskFinished;
+            }
 
-            eventSource.TargetStarted += TargetStarted;
-            eventSource.TargetFinished += TargetFinished; ;
+            if (Verbosity >= LoggerVerbosity.Detailed)
+            {
+                eventSource.TargetStarted += TargetStarted;
+                eventSource.TargetFinished += TargetFinished;
+            }
+            
+            if (Verbosity >= LoggerVerbosity.Normal)
+            {
+                eventSource.ProjectStarted += ProjectStarted;
+                eventSource.ProjectFinished += ProjectFinished;
+            }
+            
         }
 
+        private void TaskStarted(object sender, TaskStartedEventArgs e)
+        {
+            ChromeTracer.AddEndEvent(e.ThreadId, "Task:" + e.TaskName, GetTimeStamp(e.Timestamp), string.Empty);
+        }
+
+        private void TaskFinished(object sender, TaskStartedEventArgs e)
+        {
+            ChromeTracer.AddEndEvent(e.ThreadId, "Task:" + e.TaskName, GetTimeStamp(e.Timestamp), string.Empty);
+        }
 
         private void TargetFinished(object sender, Microsoft.Build.Framework.TargetFinishedEventArgs e)
         {
-            ChromeTracer.AddEndEvent(e.ThreadId, e.TargetName, GetTimeStamp(e.Timestamp), string.Empty);
+            ChromeTracer.AddEndEvent(e.ThreadId, "Target:" + e.TargetName, GetTimeStamp(e.Timestamp), string.Empty);
         }
 
         private void TargetStarted(object sender, Microsoft.Build.Framework.TargetStartedEventArgs e)
         {
-            ChromeTracer.AddBeginEvent(e.ThreadId, e.TargetName, GetTimeStamp(e.Timestamp), string.Empty);
+            ChromeTracer.AddBeginEvent(e.ThreadId, "Target:" +e.TargetName, GetTimeStamp(e.Timestamp), string.Empty);
         }
 
         private void ProjectStarted(object sender, Microsoft.Build.Framework.ProjectStartedEventArgs e)
         {
-            ChromeTracer.AddBeginEvent(e.ThreadId, Path.GetFileName(e.ProjectFile), GetTimeStamp(e.Timestamp), string.Empty);
+            ChromeTracer.AddBeginEvent(e.ThreadId, "Project:" + Path.GetFileName(e.ProjectFile), GetTimeStamp(e.Timestamp), string.Empty);
         }
 
         private void ProjectFinished(object sender, Microsoft.Build.Framework.ProjectFinishedEventArgs e)
         {
-            ChromeTracer.AddEndEvent(e.ThreadId, Path.GetFileName(e.ProjectFile), GetTimeStamp(e.Timestamp), string.Empty);
+            ChromeTracer.AddEndEvent(e.ThreadId, "Project:" + Path.GetFileName(e.ProjectFile), GetTimeStamp(e.Timestamp), string.Empty);
         }
 
         private long GetTimeStamp(DateTime timestamp)
